@@ -189,6 +189,56 @@ int maxKilledEnemies(vector<vector<char>>& grid) {
     return res;
 }
 ```
+### 368. Largest Divisible Subsets
+
+#### dp 含义：
+
+dp[i]在 i 位置时最大的能被整除的自己长度。
+
+#### 递推关系
+
+首先为了方便我们首先将给定数组进行排序这样我们只需前后比较做除法就可以了。如果我们发现了一个被除数和除数配对，则dp[被除数] = dp[除数] + 1。 如果这个数没法找到除数，则从0开始重新记录长度。标好了dp数组之后，我们找到最大的max_size = dp[i]并且提取max_index = i; 然后从dp末尾向前遍历找到所有包含在max_size 里面的数。
+
+ |nums| 2 | 4 | 7 | 8 | 9 | 14 | 16 |
+ ------------------------------------
+ |dp  | 1 | 2 | 1 | 3 | 1 | 2 | 4 |
+
+```C++
+vector<int> largestDivisibleSubset(vector<int>& nums) {
+    if(nums.size() < 1) return {};
+    vector<int> dp(nums.size(), 0);
+    sort(nums.begin(), nums.end());
+    
+    for(int i = 0; i < nums.size(); i++){
+        int maxsize = 0;
+        for(int j = 0; j < i; j++){
+            if(nums[i] % nums[j] == 0)
+                maxsize = max(maxsize, dp[j]);
+        }
+        dp[i] = maxsize + 1;
+    }
+    
+    int max_size = 0, max_index = 0;
+    for(int i = 0; i < dp.size(); i++){
+        if(dp[i] > max_size){
+            max_size = dp[i];
+            max_index = i;
+        }
+    }
+    
+    int curr_size = max_size, curr = nums[max_index];
+    vector<int> result;
+    for(int i = max_index; i >= 0; i--){
+        if(curr_size == dp[i] && curr % nums[i] == 0){
+            result.push_back(nums[i]);
+            curr_size--;
+            curr = nums[i];
+        }
+    }
+    sort(result.begin(), result.end());
+    return result;
+}
+```
 
 ### 516 Longest Palindromic Subsequence  & 相似题 647 Palindromic Substrings
 注意 subsequence 并不一定连续 而 substring 则是要连续
