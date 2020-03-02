@@ -199,6 +199,8 @@ dp[i]在 i 位置时最大的能被整除的自己长度。
 
 首先为了方便我们首先将给定数组进行排序这样我们只需前后比较做除法就可以了。如果我们发现了一个被除数和除数配对，则dp[被除数] = dp[除数] + 1。 如果这个数没法找到除数，则从0开始重新记录长度。标好了dp数组之后，我们找到最大的max_size = dp[i]并且提取max_index = i; 然后从dp末尾向前遍历找到所有包含在max_size 里面的数。
 
+例如：
+
 |nums| 2 | 4 | 7 | 8 | 9 | 14 | 16 |
 |----|---|---|---|---|---|---|---|
 |dp  | 1 | 2 | 1 | 3 | 1 | 2 | 4 |
@@ -237,6 +239,91 @@ vector<int> largestDivisibleSubset(vector<int>& nums) {
     }
     sort(result.begin(), result.end());
     return result;
+}
+```
+
+### 376. Wiggle Subsequence
+
+#### dp 含义
+
+建立两个数组分别叫 up & down 分别存储在 i 位置 时 最长的wiggle subsequence 长度，区别在于末尾是上升或下降。
+
+#### 递推关系
+
+外层循环遍历给定数组，内层循环遍历到外层循环i。 比较相邻两个数时候，如果增大则 up[i] = down[j] + 1, 否则 down[i] = up[j] + 1。
+对其优化，不用数组记录进程，而是用变量来不断存储 up 和 down。
+
+```C++
+int wiggleMaxLength(vector<int>& nums) {
+    if(nums.size() < 2)
+        return nums.size();
+    int up = 1, down = 1;
+    for(int i = 1; i < nums.size(); i++){
+        if(nums[i] > nums[i-1])
+            up = down + 1;
+        else if(nums[i] < nums[i-1])
+            down = up + 1;
+    }
+    return max(up,down);
+}
+```
+
+### 377. Combination Sum IV
+
+这道题是combination sum 系列问题中的其中一道，combination sum 最原始的题是可以用backtracking 的方法来解的，本题也可以，但是会超时。因此还是运用动态规划来解。
+
+#### dp 含义
+
+仔细观察就会发现这道题与经典问题**硬币组成问题**和**279.Perfect Square**是相似题。因此我们依旧是建立一维数组，建立两层循环来求解子问题。dp[i]的含义为target为 i 时解的个数。
+
+#### 递推关系
+
+外层循环遍历到我们的target value，内层循环遍历到当前外层循环 i 值。如果 nums[i] >= nums[j] 我们就将之前 i-j 的 情况数加上。相当于通过 j 的遍历来遍历所有的情况。把所有情况都加上就是 i 的解的个数。
+
+```C++
+int combinationSum4(vector<int>& nums, int target){
+    vector<unsigned long long> dp(target+1,0);
+    dp[0] = 1;
+    sort(nums.begin(), nums.end());
+    for(int i = 1; i <= target; i++){
+        for(auto j : nums){
+            if(i >= j)
+                dp[i] += dp[i-j];
+            else
+                break;
+        }
+    }
+    return dp.back();
+}
+```
+
+### 413. Arithmetic Slices
+
+#### dp 含义
+
+dp[i] 表示 在 i 位置时有多少个等差数列。
+
+#### 递推关系
+
+当连续的三个数是等差的时候就增加该位置的dp即，dp[i] = dp[i-1] + 1; 否则保持为初始值 0。 同时用一个变量sum来记录总和
+
+|nums| 1 | 3 | 5 | 7 | 9 | 15 | 20 | 25 | 28 | 29 |
+|----|---|---|---|---|---|---|---|---|---|---|
+|dp  | 0 | 0 | 1 | 2 | 3 | 0 | 0 | 1 | 0 | 0 |
+|sum  | 0 | 0 | 1 | 3 | 6 | 0 | 0 | 7 | 0 | 0 |
+
+```C++
+int numberOfArithmeticSlices(vector<int>& A) {
+    vector<int> dp(A.size(),0);
+    int sum = 0;
+    if(A.size() <   3) return 0;
+    for(int i = 2; i < A.size(); i++){
+        if(A[i] - A[i-1] == A[i-1] - A[i-2]){
+            dp[i] = dp[i-1] + 1;
+            sum += dp[i];
+        }
+    } 
+    return sum;
 }
 ```
 
