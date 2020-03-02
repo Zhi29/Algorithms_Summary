@@ -1,9 +1,4 @@
----
-title: 'Dynamic Programming'
-date: 2020-02-25 00:00:00
-featured_image: '/images/demo/demo-square.jpg'
-excerpt: The Blog for Dynamic Programming
----
+# Dynamic Programming 算法题方法总结
 
 ### 139. Word Break
 
@@ -151,6 +146,49 @@ int integerBreak(int n) {
 }
 ```
 
+### 361. Bomb Enemy
+
+#### dp 含义
+建立四个二维数组，分别代表每个i,j位置从左向右，从右向左，从上向下，从下向上方向能炸死的敌人，最后将这四个方向的敌人数目加和就是最后的结果
+
+#### 递推关系
+如果碰到‘E'就加一，如果碰到’W‘就归零，否则就延续之前位置的值。
+
+```C++
+int maxKilledEnemies(vector<vector<char>>& grid) {
+    if (grid.empty() || grid[0].empty()) return 0;
+    int m = grid.size(), n = grid[0].size(), res = 0;
+    vector<vector<int>> v1(m, vector<int>(n, 0)), v2 = v1, v3 = v1, v4 = v1;
+    for (int i = 0; i < m; ++i) {
+        for (int j = 0; j < n; ++j) {
+            int t = (j == 0 || grid[i][j] == 'W') ? 0 : v1[i][j - 1];
+            v1[i][j] = grid[i][j] == 'E' ? t + 1 : t;
+        }
+        for (int j = n - 1; j >= 0; --j) {
+            int t = (j == n - 1 || grid[i][j] == 'W') ? 0 : v2[i][j + 1];
+            v2[i][j] = grid[i][j] == 'E' ? t + 1 : t;
+        }
+    }
+    for (int j = 0; j < n; ++j) {
+        for (int i = 0; i < m; ++i) {
+            int t = (i == 0 || grid[i][j] == 'W') ? 0 : v3[i - 1][j];
+            v3[i][j] = grid[i][j] == 'E' ? t + 1 : t;
+        }
+        for (int i = m - 1; i >= 0; --i) {
+            int t = (i == m - 1 || grid[i][j] == 'W') ? 0 : v4[i + 1][j];
+            v4[i][j] = grid[i][j] == 'E' ? t + 1 : t;
+        }
+    }
+    for (int i = 0; i < m; ++i) {
+        for (int j = 0; j < n; ++j) {
+            if (grid[i][j] == '0') {
+                res = max(res, v1[i][j] + v2[i][j] + v3[i][j] + v4[i][j]);
+            }
+        }
+    }
+    return res;
+}
+```
 
 ### 516 Longest Palindromic Subsequence  & 相似题 647 Palindromic Substrings
 注意 subsequence 并不一定连续 而 substring 则是要连续
