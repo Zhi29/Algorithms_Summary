@@ -327,6 +327,41 @@ int numberOfArithmeticSlices(vector<int>& A) {
 }
 ```
 
+### 416. Partition Equal Subset Sum
+
+#### dp 含义
+
+dp[i] 表示能否找到子集使得和为 i 。
+
+#### 递推关系
+
+外层循环遍历给定数组，内层循环从目标值target 逐渐减小遍历，当遍历到数组某一个值 num 时候，判断是否 i - num 是否为真，如果 i - num 为真 则 i 也为真，因为这两个之间就只相差 num 而 num 是我们正在遍历的数字。因为我们要从target 逐渐减小遍历很多遍，因此如果在某一次遍历的过程中dp[i] 已经为true，那么自然要将其延续下去。
+
+```C++
+bool canPartition(vector<int>& nums) {
+    int total = compute_sum(nums);
+    if(total % 2)
+        return false;
+    int target = total / 2;
+    vector<bool> dp(target+1, false);
+    dp[0] = true;
+    for(auto num : nums){
+        for(int i = target; i >= num; i--){
+            dp[i] = dp[i] || dp[i-num];
+        }
+    }
+    return dp[target];
+}
+
+int compute_sum(vector<int>& subsets){
+    int sum = 0;
+    for(int i = 0; i < subsets.size(); i++){
+        sum += subsets[i];
+    }
+    return sum;
+}
+```
+
 ### 516 Longest Palindromic Subsequence  & 相似题 647 Palindromic Substrings
 注意 subsequence 并不一定连续 而 substring 则是要连续
 
@@ -345,34 +380,34 @@ int numberOfArithmeticSlices(vector<int>& A) {
 ```C++
 //516 Longest Palindromic Subsequence
 int longestPalindromeSubseq(string s){
-        //dp[i][j] represents the length of the LPS we can make 
-        //if we consider the characters from s[i] to s[j]
-        vector<int> tmp(s.length(),0);
-        vector<vector<int>> dp;
-        for(int i = 0; i < s.length(); i++){
-            dp.push_back(tmp);
-            dp[i][i] = 1;//handle for odd total length of given input
-        }
-
-        int n = s.length();
-        for(int i = 0; i < s.length()-1; i++){//this for loop is for even total length of input
-            if(s[i] == s[i+1])
-                dp[i][i+1] = 2;
-            else
-                dp[i][i+1] = 1;
-        }
-     
-        for(int m = 3; m <= n; m++){//m is the length of current subsequence e.g. when m = 3 the subsequence is bbb bba bab
-            for(int i = 0; i <= n - m; i++){ //i is the current subsequence's starter
-                int j = i + m - 1; // j is the current subsequence's ender
-                if(s[i] == s[j])
-                    dp[i][j] = dp[i+1][j-1] + 2;
-                else
-                    dp[i][j] = max(dp[i+1][j], dp[i][j-1]);
-            }
-        }
-        return dp[0][n-1];
+    //dp[i][j] represents the length of the LPS we can make 
+    //if we consider the characters from s[i] to s[j]
+    vector<int> tmp(s.length(),0);
+    vector<vector<int>> dp;
+    for(int i = 0; i < s.length(); i++){
+        dp.push_back(tmp);
+        dp[i][i] = 1;//handle for odd total length of given input
     }
+
+    int n = s.length();
+    for(int i = 0; i < s.length()-1; i++){//this for loop is for even total length of input
+        if(s[i] == s[i+1])
+            dp[i][i+1] = 2;
+        else
+            dp[i][i+1] = 1;
+    }
+    
+    for(int m = 3; m <= n; m++){//m is the length of current subsequence e.g. when m = 3 the subsequence is bbb bba bab
+        for(int i = 0; i <= n - m; i++){ //i is the current subsequence's starter
+            int j = i + m - 1; // j is the current subsequence's ender
+            if(s[i] == s[j])
+                dp[i][j] = dp[i+1][j-1] + 2;
+            else
+                dp[i][j] = max(dp[i+1][j], dp[i][j-1]);
+        }
+    }
+    return dp[0][n-1];
+}
 ```
 
 **Palindromic Substrings:**
